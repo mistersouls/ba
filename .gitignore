@@ -2,3 +2,5 @@
 # Binary
 bin/
 
+# Vim
+*.swp

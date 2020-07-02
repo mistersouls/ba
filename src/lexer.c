@@ -37,8 +37,8 @@ Tokens *new_tokens() {
 }
 
 void add_token(Tokens **tokens, uint8_t *val, size_t size_val) {
-    // TODO: get val token since size_val
-    Token token = {.val = val, .type = TOKEN_UNKNOWN};
+    // TODO: handle val token since size_val
+    Token token = init_token(val, size_val);
     Tokens *new = new_tokens();
     new->token = token;
 
@@ -52,7 +52,8 @@ void display_tokens(Tokens *tokens) {
     printf("<Tokens [");
 
     while (current->prev != NULL) {
-	printf("{token = '%s', type = %s}",current->token.val, "UNKNOWN");
+	printf("{token = '%s', type = %s}",
+	    current->token.val, stringof_type(current->token.type));
 	current = current->prev;
 	if (current->prev != NULL) {
 	    printf(", ");
@@ -61,4 +62,5 @@ void display_tokens(Tokens *tokens) {
 
     printf("]>");
 }
+
 

@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
     add_token(&tokens, ":", 1);
     add_token(&tokens, "number", 6);
     add_token(&tokens, ";", 1);
+    add_token(&tokens, "x: number;", 1);
 
     display_tokens(tokens);
     printf("\n");
