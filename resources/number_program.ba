@@ -1,0 +1,3 @@
+x: number;
+x = 1;
+print x;
