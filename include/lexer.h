@@ -32,6 +32,10 @@ static const uint8_t *TYPES[] = {
     "string", "number", "booleean",
 };
 
+static const uint8_t ATOMICS[] = {
+    ':', ';', '='
+};
+
 typedef enum {
     TOKEN_ID,
     TOKEN_TYPE,
@@ -62,7 +66,11 @@ typedef struct Tokens {
 uint8_t *read_entry(char *filename);
 Tokens *new_tokens();
 void add_token(Tokens **tokens, uint8_t *val, size_t size_val);
+void tokenize(Tokens **tokens, uint8_t *seq);
 void display_tokens(Tokens *tokens);
+
+uint8_t *process_validstr(Tokens **tokens, uint8_t *seq);
+uint8_t *process_atomic(Tokens **tokens, uint8_t *seq);
 
 Token init_token(uint8_t *val, size_t size_val);
 TokenType tokenof(uint8_t *val);
@@ -73,6 +81,7 @@ bool istype(uint8_t *val);
 bool isvalue(uint8_t *val);
 bool iskeyword(uint8_t *val);
 static bool strcontains(const uint8_t **strings, size_t size, uint8_t *s);
+bool isatomic(uint8_t seq);
 
 #endif // BA_LEXER_H
 

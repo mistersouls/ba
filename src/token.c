@@ -49,6 +49,8 @@ bool isid(uint8_t *val) {
     if (*tmp == '_' || isalpha(*tmp)) {
 	++i;
 	++tmp;
+    } else {
+	return false;
     }
 
     while (i < strlen(val) && (*tmp == '_' || isalnum(*tmp))) {
@@ -66,7 +68,15 @@ bool istype(uint8_t *val) {
 }
 
 bool isvalue(uint8_t *val) {
-    return false;
+    // TODO: check others value type like string and boolean
+    size_t i = 0;
+    
+
+    while (i < strlen(val) && isdigit(val[i])) {
+	++i;
+    }
+
+    return i == strlen(val);
 }
 
 bool iskeyword(uint8_t *val) { 
@@ -81,6 +91,17 @@ static bool strcontains(const uint8_t **strings, size_t size, uint8_t *s) {
 	++i;
     }
 
+    return i != size;
+}
+
+bool isatomic(uint8_t seq) {
+    size_t size = sizeof(ATOMICS) / sizeof(uint8_t);
+    size_t i = 0;
+
+    while (i < size && ATOMICS[i] != seq) {
+	++i;
+    }
+    
     return i != size;
 }
 

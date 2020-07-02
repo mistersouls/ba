@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 uint8_t *read_entry(char *filename) {
     FILE *f = fopen(filename, "r");
@@ -63,4 +64,35 @@ void display_tokens(Tokens *tokens) {
     printf("]>");
 }
 
+void tokenize(Tokens **tokens, uint8_t *seq) {
+    while (*seq != '\0') {
+	if (isspace(*seq)) {
+	    ++seq;
+	} else if (isalnum(*seq)) {
+	    seq = process_validstr(tokens, seq);
+	} else if (isatomic(*seq)) {
+	    seq = process_atomic(tokens, seq);
+	} else {
+	    printf("Syntax error: invalid character '%c'\n", *seq);
+	}
+    }
+}
+
+
+uint8_t *process_validstr(Tokens **tokens, uint8_t *seq) {
+    size_t i = 0;
+
+    while (i < strlen(seq) && isalnum(seq[i])) {
+	++i;
+    }
+
+    add_token(tokens, seq, i);
+
+    return seq + i;
+}
+
+uint8_t *process_atomic(Tokens **tokens, uint8_t *seq) {
+    add_token(tokens, seq, 1);
+    return seq + 1;
+}
 
