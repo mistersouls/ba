@@ -15,7 +15,7 @@ declaration: {id} ':' {type} ';'
 
 number: [0-9]+
 
-expression: {id} | 
+expression: {id} | {number}
 
 assignment: {id} '=' {expression}
 

@@ -40,22 +40,19 @@ uint8_t *stringof_type(TokenType type) {
 
 bool isid(uint8_t *val) {
     size_t i = 0;
-    uint8_t *tmp = val; 
    
     if (iskeyword(val)) {
 	return false;
     }
 
-    if (*tmp == '_' || isalpha(*tmp)) {
+    if (val[i] == '_' || isalpha(val[i])) {
 	++i;
-	++tmp;
     } else {
 	return false;
     }
 
-    while (i < strlen(val) && (*tmp == '_' || isalnum(*tmp))) {
+    while (i < strlen(val) && (val[i] == '_' || isalnum(val[i]))) {
 	++i;
-	++tmp;
     }
 
     return strlen(val) == i;
