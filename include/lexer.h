@@ -66,6 +66,9 @@ typedef struct Tokens {
 uint8_t *read_entry(char *filename);
 Tokens *new_tokens();
 void add_token(Tokens **tokens, uint8_t *val, size_t size_val);
+Token pop_token(Tokens **tokens);
+Token peek_token(Tokens *tokens);
+Token peek_prev_token(Tokens *tokens);
 void tokenize(Tokens **tokens, uint8_t *seq);
 void display_tokens(Tokens *tokens);
 

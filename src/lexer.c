@@ -96,3 +96,42 @@ uint8_t *process_atomic(Tokens **tokens, uint8_t *seq) {
     return seq + 1;
 }
 
+Token pop_token(Tokens **tokens) {
+    Token token;
+
+    if ((*tokens)->prev == NULL) {
+	token.type = TOKEN_UNKNOWN;
+    } else {
+	Tokens *prev = (*tokens)->prev;
+	token = (*tokens)->token;
+	free(*tokens);
+	*tokens = prev;
+    }
+    
+    return token;
+}
+
+Token peek_token(Tokens *tokens) {
+    Token token;
+
+    if (tokens->prev == NULL) {
+	token.type = TOKEN_UNKNOWN;
+    } else {
+	token = tokens->token;
+    }
+
+    return token;
+}
+
+Token peek_prev_token(Tokens *tokens) {
+    Token token;
+    
+    if (tokens->prev == NULL) {
+	token.type = TOKEN_UNKNOWN;
+    } else {
+	token = peek_token(tokens->prev);
+    }
+
+    return token;
+}
+

@@ -3,6 +3,7 @@
 #define  BA_PARSER_H
 
 #include <stdint.h>
+#include "lexer.h"
 
 typedef struct {
 
@@ -89,5 +90,21 @@ typedef struct AST {
 
     struct AST *next;
 } AST;
+
+AST *parse(Tokens **tokens);
+void display_tree(AST *ast);
+
+void construct(AST **ast, Tokens **tokens);
+void construct_declaration(Declaration **declaration, Tokens **tokens);
+void construct_id(Id **id, Tokens **tokens);
+void construct_type(Type **type, Tokens **tokens);
+
+
+AST *new_ast();
+Declaration *new_declaration();
+Id *new_id();
+Type *new_type();
+
+static void *new_node(void *ptr, uint8_t *err);
 
 #endif // BA_PARSER_H
