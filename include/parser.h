@@ -29,7 +29,16 @@ typedef struct {
 typedef struct {
     Node *node;
 
-    int32_t value;
+    enum  {
+	NUMBER_INTEGER,
+//	NUMBER_REAL
+    } type;
+
+    union {
+	int32_t integer;
+//	double real;
+    };
+
 } Number;
 
 typedef struct {
@@ -96,14 +105,20 @@ void display_tree(AST *ast);
 
 void construct(AST **ast, Tokens **tokens);
 void construct_declaration(Declaration **declaration, Tokens **tokens);
+void construct_assignment(Assignment **assignment, Tokens **tokens);
+void construct_expression(Expression **expression, Tokens **tokens);
 void construct_id(Id **id, Tokens **tokens);
 void construct_type(Type **type, Tokens **tokens);
+void construct_number(Number **number, Tokens **tokens);
 
 
 AST *new_ast();
 Declaration *new_declaration();
+Assignment *new_assignment();
+Expression *new_expression();
 Id *new_id();
 Type *new_type();
+Number *new_number();
 
 static void *new_node(void *ptr, uint8_t *err);
 

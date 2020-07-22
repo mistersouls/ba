@@ -12,7 +12,7 @@ Ci-dessous la spécification de la syntaxe grammaire en lex:
 #### `declaration: {id} ':' {type} ';'`
 #### `number: [0-9]+`
 #### `expression: {id} | {number}`
-#### `assignment: {id} '=' {expression}`
+#### `assignment: {id} '=' {expression} ';'`
 #### `print: 'print' {expression} ';'`
 
 Ce qui permet d'avoir un exemple de programme valide comme ci-dessous:
@@ -38,7 +38,7 @@ actuelle, les différents motifs sont:
 - *TOKEN_COLON*
 - *TOKEN_SEMICOLON*
 - *TOKEN_ASSIGNMENT*
-- *TOKEN_VALUE*
+- *TOKEN_NUMBER*
 - *TOKEN_PRINT*
 
 Le design pattern utilisé pour implémenter le lexer est la pile (liste chaînée).

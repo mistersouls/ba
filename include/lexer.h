@@ -42,7 +42,7 @@ typedef enum {
     TOKEN_COLON,
     TOKEN_SEMICOLON,
     TOKEN_ASSIGNMENT,
-    TOKEN_VALUE,
+    TOKEN_NUMBER,
     TOKEN_PRINT,
 
     TOKEN_UNKNOWN
@@ -81,7 +81,7 @@ uint8_t *stringof_type(TokenType type);
 
 bool isid(uint8_t *val);
 bool istype(uint8_t *val);
-bool isvalue(uint8_t *val);
+bool isnumber(uint8_t *val);
 bool iskeyword(uint8_t *val);
 static bool strcontains(const uint8_t **strings, size_t size, uint8_t *s);
 bool isatomic(uint8_t seq);

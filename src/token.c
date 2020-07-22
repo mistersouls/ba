@@ -19,7 +19,7 @@ TokenType tokenof(uint8_t *val) {
     if (strcmp(val, ":") == 0)		return TOKEN_COLON;
     if (strcmp(val, ";") == 0)		return TOKEN_SEMICOLON;
     if (strcmp(val, "=") == 0)		return TOKEN_ASSIGNMENT;
-    if (isvalue(val))			return TOKEN_VALUE;
+    if (isnumber(val))			return TOKEN_NUMBER;
     if (strcmp(val, "print") == 0)	return TOKEN_PRINT;
 
     return TOKEN_UNKNOWN;
@@ -32,7 +32,7 @@ uint8_t *stringof_type(TokenType type) {
 	case TOKEN_COLON:		return "COLON";
 	case TOKEN_SEMICOLON:		return "SEMICOLON";
 	case TOKEN_ASSIGNMENT:		return "ASSIGNMENT";
-	case TOKEN_VALUE:		return "VALUE";
+	case TOKEN_NUMBER:		return "NUMBER";
 	case TOKEN_PRINT:		return "PRINT";
 	default: 			return "UNKNOWN";
     }
@@ -64,8 +64,7 @@ bool istype(uint8_t *val) {
     return strcontains(TYPES, size, val);
 }
 
-bool isvalue(uint8_t *val) {
-    // TODO: check others value type like string and boolean
+bool isnumber(uint8_t *val) {
     size_t i = 0;
     
 

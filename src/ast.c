@@ -100,3 +100,61 @@ static void *new_node(void *ptr, uint8_t *err) {
     return ptr;
 }
 
+void construct_number(Number **number, Tokens **tokens) {
+    *number = new_number();
+    Token token = pop_token(tokens);
+
+    if (token.type == TOKEN_NUMBER) {
+	// TODO: check the type of number
+	(*number)->type = NUMBER_INTEGER;
+	(*number)->integer = atoi(token.val);
+    } else {
+	printf("Syntax error: expected a number.\n");
+    }
+}
+
+void construct_assignment(Assignment **assignment, Tokens **tokens) {
+    *assignment = new_assignment();
+    construct_expression(&(*assignment)->expression, tokens);
+    Token token = pop_token(tokens);
+
+    if (token.type = TOKEN_ASSIGNMENT) {
+	construct_id(&(*assignment)->id, tokens);
+    } else {
+	printf("Syntax error: expected equal onto the assignment.\n");
+    }
+}
+
+void construct_expression(Expression **expression, Tokens **tokens) {
+    *expression = new_expression();
+    Token token = peek_token(*tokens);
+
+    if (token.type == TOKEN_NUMBER) {
+	(*expression)->type = EXPRESSION_NUMBER;
+	construct_number(&(*expression)->number, tokens);
+    } else if (token.type == TOKEN_ID) {
+	(*expression)->type = EXPRESSION_ID;
+	construct_id(&(*expression)->id, tokens);
+    } else {
+	printf("Syntax error: an expression must be a number or an id.\n");
+    }
+}
+
+Number *new_number() {
+    uint8_t *msg = "Unable to allocate memory while constructing number.\n";
+    Number *number = new_node(number, msg);
+    return number;
+}
+
+Assignment *new_assignment() {
+    uint8_t *msg = "Unable to allocate memory while constructing assignment.\n";
+    Assignment *assignment = new_node(assignment, msg);
+    return assignment;
+}
+
+Expression *new_expression() {
+    uint8_t *msg = "Unable to allocate memory while constructing expression.\n";
+    Expression *expression = new_node(expression, msg);
+    return expression;
+}
+
