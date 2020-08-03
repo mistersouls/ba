@@ -13,6 +13,12 @@ void construct(AST **ast, Tokens **tokens) {
 	if (current.type == TOKEN_TYPE && previous.type == TOKEN_COLON) {
 	    (*ast)->type = INSTRUCTION_DECLARATION;
 	    construct_declaration(&(*ast)->declaration, tokens);
+	} else if (isexpression(current) && previous.type == TOKEN_ASSIGNMENT) {
+	    (*ast)->type = INSTRUCTION_ASSIGNMENT;
+	    construct_assignment(&(*ast)->assignment, tokens);
+	} else if (isexpression(current) && isbuiltin(previous)) {
+	    (*ast)->type = INSTRUCTION_BFC;
+	    construct_bfc(&(*ast)->bfc, tokens);
 	} else {
 	    printf("Syntax error: Unrecognized instruction.\n");
 	}
@@ -100,6 +106,14 @@ static void *new_node(void *ptr, uint8_t *err) {
     return ptr;
 }
 
+static bool isexpression(Token token) {
+    return token.type == TOKEN_ID || token.type == TOKEN_NUMBER;
+}
+
+static bool isbuiltin(Token token) {
+    return token.type == TOKEN_PRINT;
+}
+
 void construct_number(Number **number, Tokens **tokens) {
     *number = new_number();
     Token token = pop_token(tokens);
@@ -158,3 +172,22 @@ Expression *new_expression() {
     return expression;
 }
 
+void construct_bfc(BuiltinFuncCall **bfc, Tokens **tokens) {
+    *bfc = new_bfc();
+    construct_expression(&(*bfc)->expression, tokens);
+    Token token = pop_token(tokens);
+
+    if (isbuiltin(token)) {
+	// TODO: check condition by type bfc
+	(*bfc)->type = BUILTIN_PRINT;
+    } else {
+	printf("Syntax error: undeclared %s function.\n", token.val);
+    }
+}
+
+BuiltinFuncCall *new_bfc() {
+    uint8_t *msg = "Unable to allocate memory while constructing builtin call function.\n";
+    BuiltinFuncCall *bfc = new_node(bfc, msg);
+    return bfc;
+
+}

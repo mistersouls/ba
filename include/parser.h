@@ -3,6 +3,7 @@
 #define  BA_PARSER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "lexer.h"
 
 typedef struct {
@@ -106,6 +107,7 @@ void display_tree(AST *ast);
 void construct(AST **ast, Tokens **tokens);
 void construct_declaration(Declaration **declaration, Tokens **tokens);
 void construct_assignment(Assignment **assignment, Tokens **tokens);
+void construct_bfc(BuiltinFuncCall **bfc, Tokens **tokens);
 void construct_expression(Expression **expression, Tokens **tokens);
 void construct_id(Id **id, Tokens **tokens);
 void construct_type(Type **type, Tokens **tokens);
@@ -115,11 +117,14 @@ void construct_number(Number **number, Tokens **tokens);
 AST *new_ast();
 Declaration *new_declaration();
 Assignment *new_assignment();
+BuiltinFuncCall *new_bfc();
 Expression *new_expression();
 Id *new_id();
 Type *new_type();
 Number *new_number();
 
 static void *new_node(void *ptr, uint8_t *err);
+static bool isexpression(Token token);
+static bool isbuiltin(Token token);
 
 #endif // BA_PARSER_H

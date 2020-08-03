@@ -16,6 +16,15 @@ void display_tree(AST *ast) {
 	case INSTRUCTION_DECLARATION:
 	    printf("AST {declaration {id = \"%s\", type = %d}}",
 		ast->declaration->id->value, ast->declaration->type->value);
+	    break;
+	case INSTRUCTION_ASSIGNMENT:
+	    printf("AST {assignment {id = \"%s\", expression = ?}}",
+		ast->assignment->id->value);
+	    break;
+	case INSTRUCTION_BFC:
+	    printf("AST {bfc {bf = %d, expression = ?}}",
+		ast->bfc->type);
+	    break;
 	default: break;
 
     }
