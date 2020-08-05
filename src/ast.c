@@ -3,7 +3,6 @@
 #include <string.h>
 
 void construct(AST **ast, Tokens **tokens) {
-    *ast = new_ast();
     Token token = pop_token(tokens);
 
     if (token.type == TOKEN_SEMICOLON) {
@@ -24,6 +23,14 @@ void construct(AST **ast, Tokens **tokens) {
 	}
     } else {
 	printf("Syntax error: expected semicolon at the end of instruction.\n");
+    }
+
+    token = peek_token(*tokens);
+    if (token.type != TOKEN_UNKNOWN) {
+	AST *new = new_ast();
+	new->next = *ast;
+	construct(&new, tokens);
+	*ast = new;
     }
 }
 
@@ -74,13 +81,22 @@ void construct_type(Type **type, Tokens **tokens) {
 
 AST *new_ast() {
     uint8_t *msg = "Unable to allocate memory while constructing ast.\n";
-    AST *ast = new_node(ast, msg);
+    AST *ast = malloc(sizeof(AST));
+    if (ast == NULL) {
+	printf(msg);
+	exit(1);
+    }
+    ast->node = new_node(ast->node, msg);
+    ast->node->accept = (accept) accept_ast;
+
     return ast;
 }
 
 Declaration *new_declaration() {
     uint8_t *msg = "Unable to allocate memory while constructing declaration.\n";
     Declaration *declaration = new_node(declaration, msg);
+    declaration->node = new_node(declaration->node, msg);
+    declaration->node->accept = (accept) accept_declaration;
     return declaration;
 }
 

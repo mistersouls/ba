@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "lexer.h"
+#include "visitable.h"
 
 typedef struct {
-
+    accept accept;
 } Node;
 
 typedef struct {
@@ -58,7 +59,7 @@ typedef struct {
 
 } Expression;
 
-typedef struct {
+typedef struct Declaration {
     Node *node;
 
     Id *id;
@@ -85,7 +86,8 @@ typedef struct {
 } BuiltinFuncCall;
 
 typedef struct AST {
-    
+    Node *node;
+
     enum {
 	INSTRUCTION_DECLARATION,
 	INSTRUCTION_ASSIGNMENT,
