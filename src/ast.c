@@ -103,12 +103,16 @@ Declaration *new_declaration() {
 Id *new_id() {
     uint8_t *msg = "Unable to allocate memory while constructing id.\n";
     Id *id = new_node(id, msg);
+    id->node = new_node(id->node, msg);
+    id->node->accept = (accept) accept_id;
     return id;
 }
 
 Type *new_type() {
     uint8_t *msg = "Unable to allocate memory while constructing type.\n";
     Type *type = new_node(type, msg);
+    type->node = new_node(type->node, msg);
+    type->node->accept = (accept) accept_type;
     return type;
 }
 
@@ -173,18 +177,24 @@ void construct_expression(Expression **expression, Tokens **tokens) {
 Number *new_number() {
     uint8_t *msg = "Unable to allocate memory while constructing number.\n";
     Number *number = new_node(number, msg);
+    number->node = new_node(number->node, msg);
+    number->node->accept = (accept) accept_number;
     return number;
 }
 
 Assignment *new_assignment() {
     uint8_t *msg = "Unable to allocate memory while constructing assignment.\n";
     Assignment *assignment = new_node(assignment, msg);
+    assignment->node = new_node(assignment->node, msg);
+    assignment->node->accept = (accept) accept_assignment;
     return assignment;
 }
 
 Expression *new_expression() {
     uint8_t *msg = "Unable to allocate memory while constructing expression.\n";
     Expression *expression = new_node(expression, msg);
+    expression->node = new_node(expression->node, msg);
+    expression->node->accept = (accept) accept_expression;
     return expression;
 }
 
@@ -204,6 +214,8 @@ void construct_bfc(BuiltinFuncCall **bfc, Tokens **tokens) {
 BuiltinFuncCall *new_bfc() {
     uint8_t *msg = "Unable to allocate memory while constructing builtin call function.\n";
     BuiltinFuncCall *bfc = new_node(bfc, msg);
+    bfc->node = new_node(bfc->node, msg);
+    bfc->node->accept = (accept) accept_bfc;
     return bfc;
 
 }

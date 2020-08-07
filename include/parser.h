@@ -11,14 +11,14 @@ typedef struct {
     accept accept;
 } Node;
 
-typedef struct {
+typedef struct Id {
     Node *node;
 
     uint8_t *value;
 
 } Id;
 
-typedef struct {
+typedef struct Type {
     Node *node;
 
     enum {
@@ -28,7 +28,7 @@ typedef struct {
     } value;
 } Type;
 
-typedef struct {
+typedef struct Number {
     Node *node;
 
     enum  {
@@ -43,7 +43,7 @@ typedef struct {
 
 } Number;
 
-typedef struct {
+typedef struct Expression {
     Node *node;
     
     enum {
@@ -67,14 +67,14 @@ typedef struct Declaration {
 
 } Declaration;
 
-typedef struct {
+typedef struct Assignment {
     Node *node;
 
     Id *id;
     Expression *expression;
 } Assignment;
 
-typedef struct {
+typedef struct BuiltinFuncCall {
     Node *node;
 
     enum {

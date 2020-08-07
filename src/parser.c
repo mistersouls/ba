@@ -1,5 +1,6 @@
 #include "../include/parser.h"
 #include <stdio.h>
+#include "../include/tree_json.h"
 
 
 AST *parse(Tokens **tokens) {
@@ -9,7 +10,7 @@ AST *parse(Tokens **tokens) {
     return ast;
 }
 
-void display_tree(AST *ast) {
+void display_tree_old(AST *ast) {
     //NOTE: just helping to debug declaration
     // TODO: implement display tree by using visitor pattern.
     
@@ -33,5 +34,10 @@ void display_tree(AST *ast) {
 
     ast = ast->next;
     }
+}
+
+void display_tree(AST *ast) {
+    Visitor visitor = TREE_JSON;
+    tjvisit_ast(visitor, ast, 0, NULL);    
 }
 
