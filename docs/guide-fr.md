@@ -106,6 +106,35 @@ noeud ne fera qu'accepter celle-ci. Je donnerai plus d"explication dans les proc
 
 ## Binder
 
+Il permet de vérifier la sémantique du programme donné en entrée. Ceci consiste à vérifier si une variable est déclarée avant d'être utilisée, la redéclaration de variable, l'adéquation de type lorsqu'une variable est assignée à une expression ainsi que la portée
+de variable. Dans cette sèrie de tutoriel, nous couvrons pas la portée des variables mais nous prévoyons la fonctionnalité à
+savoir le cadre de pile (stack frame). De ce fait la portée de variable pourra être vérifier simplement en testant si une variable
+est présent dans la trame (frame) actuelle. Dans ce cas, la variable est dite locale. Si la variable n'existe pas dans la trame de donnée actuelle mais existe dans les trames précedentes alors elle est dit globale. Dans les autres cas, une erreur est déclenchée
+pour dire que la variable n'est pas déclarée.
+
+- Une stackframe est simplement une liste chainée (pile) dont l'élément est une dataframe.
+- Une dataframe est également une liste chaînée dont les éléments sont:
+    * un identifiant (id)
+    * un type
+    * une adresse
+
+En résumé une stackframe est une liste à deux dimensions dont la première dimension agissant comme dataframe est la liste de variables
+locales comme par exemple d'une fonction. La deuxième dimension consite à limiter la visibilité des variables. Si on considère
+que chaque dataframe correspond à la liste des variables locales d'une fonction (ca peut être une classe, un module ...) alors une frame
+représente une fonction.
+
+		__________________________________________________________________________
+		|			frame			|	prev	
+		|	 ________________________________	|
+		|	|  id	    	|			|
+ Stacframe	| 	|  type		|	prev		|	..........
+		| data	|  addr		|	.....		|
+		| frame	|		|			|
+		|	|_______________|_________________	|
+		|_______________________________________________|_________________________
+
+
+
 
 ## Compiler
 
