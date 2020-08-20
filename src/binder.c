@@ -55,7 +55,7 @@ Stackframe *new_stackframe() {
     sf->df = NULL;
     sf->prev = NULL;
 
-    return NULL;
+    return sf;
 }
 
 Dataframe *new_dataframe(uint8_t *id, uint8_t type, uint32_t addr) {
@@ -69,7 +69,7 @@ Dataframe *new_dataframe(uint8_t *id, uint8_t type, uint32_t addr) {
     df->addr = addr;
     df->prev = NULL;
 
-    return NULL;
+    return df;
 }
 
 void open_frame(Stackframe **sf) {
@@ -85,7 +85,9 @@ Dataframe *find_data(Stackframe *sf, uint8_t *id) {
     while (df != NULL && df->id != NULL) {
 	if (strcmp(id, df->id) == 0) {
 	    return df;
-	}	
+	}
+
+	df = df->prev;
     }
 
     return NULL;
@@ -111,34 +113,144 @@ void put_data(Stackframe **sf, uint8_t *id, uint8_t type, uint32_t addr) {
 }
 
 void bvisit_ast(Visitor self, AST *ast, uint8_t argc, void **argv) {
+    if (argc < 1) {
+	printf("Assertion error: argument must contain at least 1.\n");
+	exit(1);
+    }
 
+    Stackframe **sf = argv[0];
+    open_frame(sf);
+
+    while (ast != NULL) {
+	switch (ast->type) {
+	    case INSTRUCTION_DECLARATION:
+		ast
+		 ->declaration
+		 ->node
+		 ->accept(ast->declaration, self, argc, argv);
+		break;
+	    case INSTRUCTION_ASSIGNMENT:
+		ast
+		 ->assignment
+		 ->node
+		 ->accept(ast->assignment, self, argc, argv);
+		break;
+	    case INSTRUCTION_BFC:
+		ast
+		 ->bfc
+		 ->node
+		 ->accept(ast->bfc, self, argc, argv);
+		break;
+	    default:
+		printf("Unexpected error: a bug was raised while visiting binder ast.\n");
+		exit(1);
+	}
+
+	ast = ast->next;
+    }
 }
 
 void bvisit_declaration(Visitor self, Declaration *declaration, uint8_t argc, void **argv) {
+    if (argc < 1) {
+	printf("Assertion error: argument must contain at least 1.\n");
+	exit(1);
+    }
+
+    Stackframe **sf = argv[0];
+    uint8_t *id = declaration->id->value;
+    uint8_t type = declaration->type->value;
+    uint32_t addr = (*sf)->df == NULL ? 0 : (*sf)->df->addr + 1;
+    Dataframe *found = find_data(*sf, id);
+    
+    if (found == NULL) {
+	put_data(sf, id, type, addr);
+    } else {
+	printf("Semantic error: %s is already declarared.\n", id);
+    }
 
 }
 
 void bvisit_assignment(Visitor self, Assignment *assignment, uint8_t argc, void **argv) {
+    if (argc < 1) {
+	printf("Assertion error: argument must contain at least 1.\n");
+	exit(1);
+    }
+    uint8_t type = 255;
+    void *new[] = {argv[0], &type};
+    
+    assignment
+	->expression
+	->node
+	->accept(assignment->expression, self, 2, new);
+
+    Stackframe **sf = new[0];
+    uint8_t *id = assignment->id->value;
+    Dataframe *found = findall_data(*sf, id);
+
+    if (found != NULL) {
+	if (found->type != type) {
+	    printf("Semantic error: type mismatch, expected %s type.\n", id);
+	}
+    } else {
+	printf("Semantic error: %s is undeclared.\n", id);
+    }
 
 }
 
 void bvisit_bfc(Visitor self, BuiltinFuncCall *bfc, uint8_t argc, void **argv) {
+    if (argc < 1) {
+	printf("Assertion error: argument must contain at least 1.\n");
+	exit(1);
+    }
 
+    uint8_t type = 255;
+    void *new[] = {argv[0], &type};
+
+    bfc
+     ->expression
+     ->node
+     ->accept(bfc->expression, self, 2, new);
 }
 
 void bvisit_expression(Visitor self, Expression *expression, uint8_t argc, void **argv) {
+    if (argc < 2) {
+	printf("Assertion error: argument must contain at least 2.\n");
+	exit(1);
+    }
+
+    Stackframe **sf = argv[0];
+    uint8_t *type = argv[1];
+
+    switch (expression->type) {
+	case EXPRESSION_NUMBER:
+	    *type = TYPE_NUMBER;
+	    break;
+	case EXPRESSION_ID: {
+	    uint8_t *id = expression->id->value;
+	    Dataframe *found = findall_data(*sf, id);
+	    if (found != NULL) {
+		*type = found->type;
+	    } else {
+		printf("Semantic error: %s is undeclared.\n", id);
+	    }
+	    break;
+	}
+	default:
+	    printf("Unexpected error: a bug was raised while visiting binder expression.\n");
+	    exit(1);
+    }
 
 }
 
 void bvisit_type(Visitor self, Type *type, uint8_t argc, void **argv) {
-
+    /* Nothing to do */
 }
 
 void bvisit_id(Visitor self, Id *id, uint8_t argc, void **argv) {
-
+    /* Nothing to do */
 }
 
 void bvisit_number(Visitor self, Number *number, uint8_t argc, void **argv) {
-
+    /* Nothing to do */
 }
 

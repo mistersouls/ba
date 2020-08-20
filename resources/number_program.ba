@@ -1,3 +1,5 @@
 x: number;
-x = 1;
+y: number;
+y = 1;
+x = y;
 print x;
