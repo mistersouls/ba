@@ -11,25 +11,31 @@
 void usage() {
     printf("usage: ba <cmd> <filename>\n");
     printf("cmd option:\n\ttokenize: tokenize the given file.\n\t");
-    printf("parse: Get the AST and check the grammar syntax.\n");
+    printf("parse: Get the AST and check the grammar syntax.\n\t");
+    printf("bind: Get the stackframe and check the semantique syntax.\n");
     exit(1);
 }
 
-void cmd_tokenize(char *filename) {
+Tokens *__tokenize(char *filename) {
     uint8_t *program = read_entry(filename);
     Tokens *tokens = new_tokens();
     tokenize(&tokens, program);
-    display_tokens(tokens);
-    printf("\n");
+
+    return tokens;
 }
 
-void cmd_parse(char *filename) {
-    uint8_t *program = read_entry(filename);
-    Tokens *tokens = new_tokens();
-    tokenize(&tokens, program);
+AST *__parse(char *filename) {
+    Tokens *tokens = __tokenize(filename);
     AST *ast = parse(&tokens);
-    display_tree(ast);
-    printf("\n");
+
+    return ast;
+}
+
+Stackframe *__bind(char *filename) {
+    AST *ast = __parse(filename);
+    Stackframe *sf = bind(ast);
+
+    return sf;
 }
 
 int main(int argc, char **argv) {
@@ -41,10 +47,18 @@ int main(int argc, char **argv) {
     char *cmd = argv[1];
     char *filename = argv[2];
 
-    if (strcmp(cmd, "parse") == 0) {
-	cmd_parse(filename);
+    if (strcmp(cmd, "bind") == 0) {
+	Stackframe *sf = __bind(filename);
+	display_frame(sf);
+	printf("\n");
+    } else if (strcmp(cmd, "parse") == 0) {
+	AST *ast = __parse(filename);
+	display_tree(ast);
+        printf("\n");
     } else if (strcmp(cmd, "tokenize") == 0) {
-	cmd_tokenize(filename);
+	Tokens *tokens = __tokenize(filename);
+	display_tokens(tokens);
+        printf("\n");	
     } else {
 	usage();
     }
