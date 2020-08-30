@@ -138,6 +138,41 @@ représente une fonction.
 
 ## Compiler
 
+Le compilateur consiste en la génération du bytecode du programme donné en entrée. Un bytecode est une sèrie d'instructions nommées en générale opcode. Ceci ressemble au langage assembleur dont chaque instruction peut avoir ou pas d'arguments. Ainsi, dans cette sèrie tutoriel, nous aurons les opcodes suivantes:
+
+| Opcodes  | Opname        |  Oparg 			|
+|:--------:|:-------------:|:--------------------------:|
+| 0x00	   | NOP	   | NONE   			|
+| 0x01	   | ILOAD_CONST   | VALUE NUMBER TO LOAD	|
+| 0x02     | ILOAD_VAR	   | VALUE REFERENCE TO LOAD	|
+| 0x03	   | ISTORE	   | REFERENCE TO SET		|
+| 0x04	   | IECHO	   | NONE			|
+| 0x05     | HALT	   | NONE			|
+
+
+Un bytecode est composé d'un header et d'un body. Nous verrons le header si besoin lorsque nous attaquerons la virtuelle machine mais pour avoir une idée, elle peut contenir des métadata sur le code source, la taille de la pile de la vm, un mot magique pour vérifier l'intégrite du bytecode  ....
+Le body sera une suite d'un opcode en 2 octets, la taille en octet de l'argument de l'opcode en 2 octets et l'argument.
+**Exemple**:
+ `x = 1;`  => se décompose en deux instructions
+
+ILOAD_CONST	1  => '01011' => ajoute un nouvel élément en haut de la pile
+ISTORE		0  => '03010' => stocke le dernier élément de la pile à l'adresse donnée en argument.
+
+Le bytecode body sera donc: '0101103010'.
+
+```
+x: number;
+x = 1;
+print x;
+```
+
+ILOAD_VAR	0
+ILOAD_CONST	1
+ISTORE		0
+ILOAD_VAR	0
+IECHO
+
+bytecode body sera: '020100101101010020100500'
 
 ## VM: virtual machine
 
