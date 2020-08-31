@@ -4,6 +4,7 @@
 #include "include/lexer.h"
 #include "include/parser.h"
 #include "include/binder.h"
+#include "include/compiler.h"
 
 
 
@@ -12,7 +13,8 @@ void usage() {
     printf("usage: ba <cmd> <filename>\n");
     printf("cmd option:\n\ttokenize: tokenize the given file.\n\t");
     printf("parse: Get the AST and check the grammar syntax.\n\t");
-    printf("bind: Get the stackframe and check the semantique syntax.\n");
+    printf("bind: Get the stackframe and check the semantique syntax.\n\t");
+    printf("disassemble: Disassemble the entry program.\n");
     exit(1);
 }
 
@@ -38,6 +40,15 @@ Stackframe *__bind(char *filename) {
     return sf;
 }
 
+Bytecode *__compile(char *filename) {
+    Tokens *tokens = __tokenize(filename);
+    AST *ast = parse(&tokens);
+    Stackframe *sf = bind(ast);
+    Bytecode *bytecode = compile(ast, sf);
+
+    return bytecode;
+}
+
 int main(int argc, char **argv) {
 
     if (argc != 3) {
@@ -47,7 +58,11 @@ int main(int argc, char **argv) {
     char *cmd = argv[1];
     char *filename = argv[2];
 
-    if (strcmp(cmd, "bind") == 0) {
+    if (strcmp(cmd, "disassemble") == 0) {
+	Bytecode *bytecode = __compile(filename);
+	disassemble(bytecode);
+	printf("\n");
+    } else if (strcmp(cmd, "bind") == 0) {
 	Stackframe *sf = __bind(filename);
 	display_frame(sf);
 	printf("\n");

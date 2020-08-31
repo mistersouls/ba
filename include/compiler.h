@@ -8,6 +8,20 @@
 #include "binder.h"
 
 
+#define COMPILER {                                                             \
+        .visit_ast              =       cvisit_ast,                            \
+        .visit_declaration      =       cvisit_declaration,                    \
+        .visit_assignment       =       cvisit_assignment,                     \
+        .visit_expression       =       cvisit_expression,                     \
+        .visit_bfc              =       cvisit_bfc,                            \
+        .visit_type             =       cvisit_type,                           \
+        .visit_id               =       cvisit_id,                             \
+        .visit_number           =       cvisit_number                          \
+}               
+
+
+
+
 typedef enum {
     NOP,
     ILOAD_CONST,
@@ -37,13 +51,15 @@ static const char *OPNAMES[] = {
 };
 
 
-Bytecode *compile();
+Bytecode *compile(AST *ast, Stackframe *sf);
 void disassemble(Bytecode *bytecode);
 void dumps(Bytecode *bytecode);
 void dump(Bytecode *bytecode, char *filename);
 Bytecode *new_bytecode(Opcode opcode, int32_t oparg, bool hasarg);
 void push(Bytecode **bytecode, Opcode opcode, int32_t oparg, bool hasarg);
 Bytecode pop(Bytecode **bytecode);
+
+static void reverse(Bytecode **bytecode);
 
 
 void cvisit_ast(Visitor self, AST *ast, uint8_t argc, void **argv);
