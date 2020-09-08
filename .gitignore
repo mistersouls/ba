@@ -2,5 +2,8 @@
 # Binary
 bin/
 
+# BA cache
+*.sb
+
 # Vim
 *.swp

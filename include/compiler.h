@@ -60,6 +60,7 @@ void push(Bytecode **bytecode, Opcode opcode, int32_t oparg, bool hasarg);
 Bytecode pop(Bytecode **bytecode);
 
 static void reverse(Bytecode **bytecode);
+static int32_t compress_byte(int32_t i);
 
 
 void cvisit_ast(Visitor self, AST *ast, uint8_t argc, void **argv);

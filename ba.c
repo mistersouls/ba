@@ -14,7 +14,9 @@ void usage() {
     printf("cmd option:\n\ttokenize: tokenize the given file.\n\t");
     printf("parse: Get the AST and check the grammar syntax.\n\t");
     printf("bind: Get the stackframe and check the semantique syntax.\n\t");
-    printf("disassemble: Disassemble the entry program.\n");
+    printf("disassemble: Disassemble the entry program.\n\t");
+    printf("dump: Get bytecode onto the console by the given entry program.\n\t");
+    printf("compile: Compile the entry program.\n");
     exit(1);
 }
 
@@ -49,6 +51,20 @@ Bytecode *__compile(char *filename) {
     return bytecode;
 }
 
+char *outfile(char *filename) {
+    size_t i = strlen(filename) - 1;
+
+    if (!(filename[i] == 'a' && filename[i - 1] == 'b' && filename[i - 2] == '.')) {
+	printf("Entry program must have *.ba format.\n");
+	exit(1);
+    }
+
+    filename[i] = 'b';
+    filename[i - 1] = 's';
+
+    return filename;
+}
+
 int main(int argc, char **argv) {
 
     if (argc != 3) {
@@ -58,7 +74,15 @@ int main(int argc, char **argv) {
     char *cmd = argv[1];
     char *filename = argv[2];
 
-    if (strcmp(cmd, "disassemble") == 0) {
+    if (strcmp(cmd, "compile") == 0) {
+	Bytecode *bytecode = __compile(filename);
+	char *bytefile = outfile(filename);
+	dump(bytecode, bytefile);
+    }else if (strcmp(cmd, "dump") == 0) {
+	Bytecode *bytecode = __compile(filename);
+	dumps(bytecode);
+	printf("\n");
+    } else if (strcmp(cmd, "disassemble") == 0) {
 	Bytecode *bytecode = __compile(filename);
 	disassemble(bytecode);
 	printf("\n");

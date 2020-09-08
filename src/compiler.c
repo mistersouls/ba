@@ -2,6 +2,7 @@
 #include "../include/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 Bytecode *compile(AST *ast, Stackframe *sf) {
@@ -9,12 +10,12 @@ Bytecode *compile(AST *ast, Stackframe *sf) {
     Visitor self = COMPILER;
     void *argv[] = {&bytecode, &sf};
     cvisit_ast(self, ast, 2, argv);
+    reverse(&bytecode);
 
     return bytecode;
 }
 
 void disassemble(Bytecode *bytecode) {
-    reverse(&bytecode);
 
     while (bytecode != NULL) {
 	printf("%-16s", OPNAMES[bytecode->opcode]);
@@ -28,11 +29,41 @@ void disassemble(Bytecode *bytecode) {
 }
 
 void dumps(Bytecode *bytecode) {
+    while (bytecode != NULL) {
+	printf("%02x", bytecode->opcode);
+	if (bytecode->hasarg) {
+	    int8_t arg[16];
+	    sprintf(arg, "%x", bytecode->oparg);
+	    printf("%02x%02x", strlen(arg), bytecode->oparg);
+	} else {
+	    printf("%02x", 0);
+	}
+
+	bytecode = bytecode->prev;
+    }
 
 }
 
 void dump(Bytecode *bytecode, char *filename) {
+    FILE *f = fopen(filename, "wb");
+    if (f == NULL) {
+	printf("Unable to open file %s.\n", filename);
+	exit(1);
+    }
 
+    while (bytecode != NULL) {
+	int32_t offset = 0;
+	fwrite(&bytecode->opcode, sizeof(int8_t), 1, f);
+	if (bytecode->hasarg) {
+	    offset = compress_byte(bytecode->oparg);
+	    fwrite(&offset, sizeof(int8_t), 1, f);
+	    fwrite(&bytecode->oparg, sizeof(int8_t) * offset, 1, f);
+	} else {
+	    fwrite(&offset, sizeof(int8_t), 1, f);
+	}
+
+	bytecode = bytecode->prev;
+    }
 }
 
 Bytecode *new_bytecode(Opcode opcode, int32_t oparg, bool hasarg) {
@@ -74,7 +105,18 @@ static void reverse(Bytecode **bytecode) {
 
     *bytecode = next;
 }
-       
+
+static int32_t compress_byte(int32_t i) {
+    int32_t n = 0;
+
+    do {
+	i >>= 1;
+	n++;
+    } while (i);
+
+    return n;
+}
+
 void cvisit_ast(Visitor self, AST *ast, uint8_t argc, void **argv) {
     while (ast != NULL) {
 	switch (ast->type) {
