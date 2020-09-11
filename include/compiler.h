@@ -28,7 +28,7 @@ typedef enum {
     ILOAD_VAR,
     ISTORE,
     IECHO,
-    HALT
+    HALT = 255
 
 } Opcode;
 
