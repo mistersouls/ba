@@ -123,6 +123,8 @@ locales comme par exemple d'une fonction. La deuxième dimension consite à limi
 que chaque dataframe correspond à la liste des variables locales d'une fonction (ca peut être une classe, un module ...) alors une frame
 représente une fonction.
 
+```
+
 		__________________________________________________________________________
 		|			frame			|	prev	
 		|	 ________________________________	|
@@ -134,7 +136,7 @@ représente une fonction.
 		|_______________________________________________|_________________________
 
 
-
+```
 
 ## Compiler
 
@@ -176,4 +178,19 @@ bytecode body sera: '020100101101010020100500'
 
 ## VM: virtual machine
 
+Elle interprète le bytecode et execute chaque opération définie par celui-ci comme le fait de charger une variable dans sa pile ou de stocker une valeur dans sa mémoire. Une virtuelle machine est comme un ordinateur. Elle a donc:
+
+- CPU
+- Main memory (stack): une pile de mémoire comme un cache lequel est directement utilisé par l'ALU.
+- Current instruction register (Code): la liste des instructions
+- Memory data register (Data): des données tels que des variables et autres informations
+- Instruction pointer: un indice qui pointe l'instruction actuelle a exécuter
+- Stack pointer: un indice qui pointe sur l'élement actuel disponible de la pile
+- Frame pointer: un indice qui pointe sur la portée des éléments disponible
+
+Un schéma pour illustrer tout ceci:
+
+![Architecture globale d'une machine](./vm.png)
+
+De ce fait chaque opcode du bytecode donné en entrée aura une opération correspondante qui s'exécuteront séquentiellement. Notez que tant que l'opcode HALT n'est pas rencontré, la vm s'éxécute à l'infini.
 
