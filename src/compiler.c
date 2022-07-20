@@ -34,7 +34,8 @@ void dumps(Bytecode *bytecode) {
 	if (bytecode->hasarg) {
 	    int8_t arg[16];
 	    sprintf(arg, "%x", bytecode->oparg);
-	    printf("%02x%02x", strlen(arg), bytecode->oparg);
+		unsigned int lenarg = strlen(arg);
+	    printf("%02x%02x", lenarg, bytecode->oparg);
 	} else {
 	    printf("%02x", 0);
 	}

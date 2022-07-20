@@ -83,7 +83,7 @@ AST *new_ast() {
     uint8_t *msg = "Unable to allocate memory while constructing ast.\n";
     AST *ast = malloc(sizeof(AST));
     if (ast == NULL) {
-	printf(msg);
+	printf("%s", msg);
 	exit(1);
     }
     ast->node = new_node(ast->node, msg);
@@ -119,7 +119,7 @@ Type *new_type() {
 static void *new_node(void *ptr, uint8_t *err) {
     ptr = malloc(sizeof(*ptr));
     if (ptr == NULL) {
-	printf(err);
+	printf("%s", err);
 	exit(1);
     }
 

@@ -1,5 +1,5 @@
 x: number;
 y: number;
-y = 1;
+y = 10500;
 x = y;
 print x;

@@ -22,9 +22,9 @@ typedef struct Type {
     Node *node;
 
     enum {
-	TYPE_NUMBER,
-	TYPE_STRING,
-	TYPE_BOOLEAN
+        TYPE_NUMBER,
+        TYPE_STRING,
+        TYPE_BOOLEAN
     } value;
 } Type;
 
