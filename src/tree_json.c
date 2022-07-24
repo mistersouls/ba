@@ -114,6 +114,18 @@ void tjvisit_expression(Visitor self, Expression *expression, uint8_t argc, void
     }
 }
 
+void tjvisit_factor(Visitor self, Factor *factor, uint8_t argc, void **argv) {
+
+}
+
+void tjvisit_term(Visitor self, Term *term, uint8_t argc, void **argv) {
+
+}
+
+void tjvisit_operation(Visitor self, Operation *operation, uint8_t argc, void **argv) {
+	
+}
+
 void tjvisit_type(Visitor self, Type *type, uint8_t argc, void **argv) {
     switch(type->value) {
 	case TYPE_NUMBER:

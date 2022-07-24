@@ -3,15 +3,18 @@
 
 #include "visitor.h"
 
-#define TREE_JSON  {								\
-	.visit_ast		=	tjvisit_ast,				\
+#define TREE_JSON  {										\
+	.visit_ast			=	tjvisit_ast,					\
 	.visit_declaration	=	tjvisit_declaration,			\
-	.visit_assignment	=	tjvisit_assignment,			\
-	.visit_expression	=	tjvisit_expression,			\
-	.visit_bfc		=	tjvisit_bfc,				\
-	.visit_type		=	tjvisit_type,				\
-	.visit_id		=	tjvisit_id,				\
-	.visit_number		=	tjvisit_number				\
+	.visit_assignment	=	tjvisit_assignment,				\
+	.visit_expression	=	tjvisit_expression,				\
+	.visit_bfc			=	tjvisit_bfc,					\
+	.visit_type			=	tjvisit_type,					\
+	.visit_id			=	tjvisit_id,						\
+	.visit_number		=	tjvisit_number,					\
+	.visit_factor		=	tjvisit_factor,					\
+	.visit_term			=	tjvisit_term,					\
+	.visit_operation	=	tjvisit_operation				\
 }		
 
 
@@ -22,7 +25,10 @@ void tjvisit_bfc(Visitor self, BuiltinFuncCall *bfc, uint8_t argc, void **argv);
 void tjvisit_expression(Visitor self, Expression *expression, uint8_t argc, void **argv); 
 void tjvisit_type(Visitor self, Type *type, uint8_t argc, void **argv); 
 void tjvisit_id(Visitor self, Id *id, uint8_t argc, void **argv); 
-void tjvisit_number(Visitor self, Number *number, uint8_t argc, void **argv); 
+void tjvisit_number(Visitor self, Number *number, uint8_t argc, void **argv);
+void tjvisit_factor(Visitor self, Factor *factor, uint8_t argc, void **argv); 
+void tjvisit_term(Visitor self, Term *term, uint8_t argc, void **argv); 
+void tjvisit_operation(Visitor self, Operation *operation, uint8_t argc, void **argv);  
 
 #endif // BA_TREE_JSON_H
 

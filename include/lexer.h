@@ -5,23 +5,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-/**
-
-id: [a-zA-Z_][a-zA-Z0-9_]*
-
-type: 'string' | 'number' | 'boolean'
-
-declaration: {id} ':' {type} ';'
-
-number: [0-9]+
-
-expression: {id} | {number}
-
-assignment: {id} '=' {expression}
-
-print: 'print' {expression} ';'
-
-*/
 
 static const uint8_t *KEYWORDS[] = {
     "string", "number", "booleean",	// type
@@ -33,7 +16,7 @@ static const uint8_t *TYPES[] = {
 };
 
 static const uint8_t ATOMICS[] = {
-    ':', ';', '='
+    ':', ';', '=', '(', ')', '+', '-', '*', '/'
 };
 
 typedef enum {
@@ -42,6 +25,12 @@ typedef enum {
     TOKEN_COLON,
     TOKEN_SEMICOLON,
     TOKEN_ASSIGNMENT,
+    TOKEN_LPARENTHESIS,
+    TOKEN_RPARENTHESIS,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MUL,
+    TOKEN_DIV,
     TOKEN_NUMBER,
     TOKEN_PRINT,
 
