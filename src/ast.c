@@ -6,31 +6,41 @@ void construct(AST **ast, Tokens **tokens) {
     Token token = pop_token(tokens);
 
     if (token.type == TOKEN_SEMICOLON) {
-	Token current = peek_token(*tokens);
-	Token previous = peek_prev_token(*tokens);
+        Token current = peek_token(*tokens);
+        Token previous = peek_prev_token(*tokens);
 
-	if (current.type == TOKEN_TYPE && previous.type == TOKEN_COLON) {
-	    (*ast)->type = INSTRUCTION_DECLARATION;
-	    construct_declaration(&(*ast)->declaration, tokens);
-	} else if (isexpression(current) && previous.type == TOKEN_ASSIGNMENT) {
-	    (*ast)->type = INSTRUCTION_ASSIGNMENT;
-	    construct_assignment(&(*ast)->assignment, tokens);
-	} else if (isexpression(current) && isbuiltin(previous)) {
-	    (*ast)->type = INSTRUCTION_BFC;
-	    construct_bfc(&(*ast)->bfc, tokens);
-	} else {
-	    printf("Syntax error: Unrecognized instruction.\n");
-	}
+        if (current.type == TOKEN_TYPE && previous.type == TOKEN_COLON) {
+            (*ast)->type = INSTRUCTION_DECLARATION;
+            construct_declaration(&(*ast)->declaration, tokens);
+        } else if (isexpression(current)) {
+            Expression *expression = new_expression();
+            construct_expression(&expression, tokens);
+            token = peek_token(*tokens);
+
+            if (token.type == TOKEN_ASSIGNMENT) {
+                (*ast)->type = INSTRUCTION_ASSIGNMENT;
+                construct_assignment(&(*ast)->assignment, tokens);
+                (*ast)->assignment->expression = expression;
+            } else if (isbuiltin(token)) {
+                (*ast)->type = INSTRUCTION_BFC;
+                construct_bfc(&(*ast)->bfc, tokens);
+                (*ast)->bfc->expression = expression;
+            } else {
+                printf("Syntax error: expected assignment or call.\n");
+            }
+        } else {
+            printf("Syntax error: Unrecognized instruction.\n");
+        }
     } else {
-	printf("Syntax error: expected semicolon at the end of instruction.\n");
+	    printf("Syntax error: expected semicolon at the end of instruction.\n");
     }
 
     token = peek_token(*tokens);
     if (token.type != TOKEN_UNKNOWN) {
-	AST *new = new_ast();
-	new->next = *ast;
-	construct(&new, tokens);
-	*ast = new;
+        AST *new = new_ast();
+        new->next = *ast;
+        construct(&new, tokens);
+        *ast = new;
     }
 }
 
@@ -126,8 +136,14 @@ static void *new_node(void *ptr, uint8_t *err) {
     return ptr;
 }
 
+static bool isfactor(Token token) {
+    return token.type == TOKEN_ID           ||
+           token.type == TOKEN_NUMBER       ||
+           token.type == TOKEN_RPARENTHESIS;
+}
+
 static bool isexpression(Token token) {
-    return token.type == TOKEN_ID || token.type == TOKEN_NUMBER;
+    return isfactor(token);
 }
 
 static bool isbuiltin(Token token) {
@@ -147,15 +163,91 @@ void construct_number(Number **number, Tokens **tokens) {
     }
 }
 
+void construct_factor(Factor **factor, Tokens **tokens) {
+    Token token = peek_token(*tokens);
+    *factor = new_factor();
+
+    switch (token.type) {
+        case TOKEN_RPARENTHESIS:
+            (*factor)->type = FACTOR_OPERATION;
+            pop_token(tokens);
+            construct_operation(&(*factor)->operation, tokens);
+            token = pop_token(tokens);
+            if (token.type != TOKEN_LPARENTHESIS) {
+                printf("Syntax error: expected token: '('\n");
+            }
+            break;
+        case TOKEN_ID:
+            (*factor)->type = FACTOR_ID;
+            construct_id(&(*factor)->id->this, tokens);
+            token = peek_token(*tokens);
+            if (token.type == TOKEN_MINUS) {
+                (*factor)->id->minus = true;
+                pop_token(tokens);
+            }
+            break;
+        case TOKEN_NUMBER:
+            (*factor)->type = FACTOR_NUMBER;
+            construct_number(&(*factor)->number->this, tokens);
+            token = peek_token(*tokens);
+            if (token.type == TOKEN_MINUS) {
+                (*factor)->number->minus = true;
+                pop_token(tokens);
+            }
+            break;
+        default:
+            break;
+    }
+
+}
+
+void construct_term(Term **term, Tokens **tokens) {
+    Token token;
+    Factor *factor = new_factor();
+    *term = new_term();
+
+    construct_factor(&factor, tokens);
+    token = peek_token(*tokens);
+
+    if (token.type == TOKEN_MUL || token.type == TOKEN_DIV) {
+        (*term)->type = TERM_THIS;
+        (*term)->this->factor = factor;
+        (*term)->this->operator = token;
+        construct_term(&(*term)->this->term, tokens);
+    } else {
+        (*term)->type = TERM_FACTOR;
+        (*term)->factor = factor;
+    }
+}
+
+void construct_operation(Operation **operation, Tokens **tokens) {
+    /** {operation} ("+" | "-") {term} | {term} */
+    Token token;
+    *operation = new_operation();
+    Term *term = new_term();
+
+    construct_term(&term, tokens);
+    token = peek_token(*tokens);
+
+    if (token.type == TOKEN_PLUS || token.type == TOKEN_MINUS) {
+        (*operation)->type = OPERATION_THIS;
+        (*operation)->this->term = term;
+        (*operation)->this->operator = token;
+        construct_operation(&(*operation)->this->operation, tokens);
+    } else {
+        (*operation)->type = OPERATION_TERM;
+        (*operation)->term = term;
+    }
+}
+
 void construct_assignment(Assignment **assignment, Tokens **tokens) {
     *assignment = new_assignment();
-    construct_expression(&(*assignment)->expression, tokens);
     Token token = pop_token(tokens);
 
     if (token.type = TOKEN_ASSIGNMENT) {
-	construct_id(&(*assignment)->id, tokens);
+	    construct_id(&(*assignment)->id, tokens);
     } else {
-	printf("Syntax error: expected equal onto the assignment.\n");
+	    printf("Syntax error: expected equal onto the assignment.\n");
     }
 }
 
@@ -163,14 +255,17 @@ void construct_expression(Expression **expression, Tokens **tokens) {
     *expression = new_expression();
     Token token = peek_token(*tokens);
 
-    if (token.type == TOKEN_NUMBER) {
-	(*expression)->type = EXPRESSION_NUMBER;
-	construct_number(&(*expression)->number, tokens);
-    } else if (token.type == TOKEN_ID) {
-	(*expression)->type = EXPRESSION_ID;
-	construct_id(&(*expression)->id, tokens);
+    if (token.type == TOKEN_NUMBER) { /** @deprecated */
+	    (*expression)->type = EXPRESSION_NUMBER;
+	    construct_number(&(*expression)->number, tokens);
+    } else if (token.type == TOKEN_ID) { /** @deprecated */
+        (*expression)->type = EXPRESSION_ID;
+        construct_id(&(*expression)->id, tokens);
+    } else if (isfactor(token)) {
+        (*expression)->type = EXPRESSION_OPERATION;
+        construct_operation(&(*expression)->operation, tokens);
     } else {
-	printf("Syntax error: an expression must be a number or an id.\n");
+	    printf("Syntax error: an expression must be a number or an id.\n");
     }
 }
 
@@ -180,6 +275,30 @@ Number *new_number() {
     number->node = new_node(number->node, msg);
     number->node->accept = (accept) accept_number;
     return number;
+}
+
+Factor *new_factor() {
+    uint8_t *msg = "Unable to allocate memory while constructing factor.\n";
+    Factor *factor = new_node(factor, msg);
+    factor->node = new_node(factor->node, msg);
+    factor->node->accept = (accept) accept_factor;
+    return factor; 
+}
+
+Term *new_term() {
+    uint8_t *msg = "Unable to allocate memory while constructing term.\n";
+    Term *term = new_node(term, msg);
+    term->node = new_node(term->node, msg);
+    term->node->accept = (accept) accept_term;
+    return term;
+}
+
+Operation *new_operation() {
+    uint8_t *msg = "Unable to allocate memory while constructing operation.\n";
+    Operation *operation = new_node(operation, msg);
+    operation->node = new_node(operation->node, msg);
+    operation->node->accept = (accept) accept_operation;
+    return operation;
 }
 
 Assignment *new_assignment() {
@@ -200,14 +319,13 @@ Expression *new_expression() {
 
 void construct_bfc(BuiltinFuncCall **bfc, Tokens **tokens) {
     *bfc = new_bfc();
-    construct_expression(&(*bfc)->expression, tokens);
     Token token = pop_token(tokens);
 
     if (isbuiltin(token)) {
-	// TODO: check condition by type bfc
-	(*bfc)->type = BUILTIN_PRINT;
+        // TODO: check condition by type bfc
+        (*bfc)->type = BUILTIN_PRINT;
     } else {
-	printf("Syntax error: undeclared %s function.\n", token.val);
+	    printf("Syntax error: undeclared %s function.\n", token.val);
     }
 }
 

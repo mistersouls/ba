@@ -32,4 +32,14 @@ void accept_number(Number *number, Visitor visitor, uint8_t argc, void **argv) {
     visitor.visit_number(visitor, number, argc, argv);
 }
 
+void accept_factor(Factor *factor, Visitor visitor, uint8_t argc, void **argv) {
+    visitor.visit_factor(visitor, factor, argc, argv);
+}
 
+void accept_term(Term *term, Visitor visitor, uint8_t argc, void **argv) {
+    visitor.visit_term(visitor, term, argc, argv);
+}
+
+void accept_operation(Operation *operation, Visitor visitor, uint8_t argc, void **argv) {
+    visitor.visit_operation(visitor, operation, argc, argv);
+}

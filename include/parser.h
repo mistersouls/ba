@@ -221,6 +221,7 @@ Term *new_term();
 Operation *new_operation();
 
 static void *new_node(void *ptr, uint8_t *err);
+static bool isfactor(Token token);
 static bool isexpression(Token token);
 static bool isbuiltin(Token token);
 
