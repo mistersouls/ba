@@ -171,75 +171,174 @@ void bvisit_declaration(Visitor self, Declaration *declaration, uint8_t argc, vo
 }
 
 void bvisit_assignment(Visitor self, Assignment *assignment, uint8_t argc, void **argv) {
+	uint8_t type;
+	Stackframe **sf;
+    Dataframe *found;
+	uint8_t *id = assignment->id->value;
+
     if (argc < 1) {
-	printf("Assertion error: argument must contain at least 1.\n");
-	exit(1);
+		printf("Assertion error: argument must contain at least 1.\n");
+		exit(1);
     }
-    uint8_t type = 255;
-    void *new[] = {argv[0], &type};
+
+	switch (assignment->expression->type) {
+		case EXPRESSION_OPERATION:
+			type = TYPE_NUMBER;
+			break;
+		default:
+			type = 255;
+			break;
+	}
     
     assignment
-	->expression
-	->node
-	->accept(assignment->expression, self, 2, new);
-
-    Stackframe **sf = new[0];
-    uint8_t *id = assignment->id->value;
-    Dataframe *found = findall_data(*sf, id);
+		->expression
+		->node
+		->accept(assignment->expression, self, argc, argv);
+	sf = argv[0];
+	found = findall_data(*sf, id);
 
     if (found != NULL) {
-	if (found->type != type) {
-	    printf("Semantic error: type mismatch, expected %s type.\n", id);
-	}
+		if (found->type != type) {
+			printf("Semantic error: type mismatch, expected %s type.\n", id);
+		}
     } else {
-	printf("Semantic error: %s is undeclared.\n", id);
+		printf("Semantic error: %s is undeclared.\n", id);
     }
 
 }
 
 void bvisit_bfc(Visitor self, BuiltinFuncCall *bfc, uint8_t argc, void **argv) {
     if (argc < 1) {
-	printf("Assertion error: argument must contain at least 1.\n");
-	exit(1);
+		printf("Assertion error: argument must contain at least 1.\n");
+		exit(1);
     }
 
-    uint8_t type = 255;
-    void *new[] = {argv[0], &type};
-
     bfc
-     ->expression
-     ->node
-     ->accept(bfc->expression, self, 2, new);
+    	->expression
+     	->node
+     	->accept(bfc->expression, self, argc, argv);
 }
 
 void bvisit_expression(Visitor self, Expression *expression, uint8_t argc, void **argv) {
-    if (argc < 2) {
-	printf("Assertion error: argument must contain at least 2.\n");
-	exit(1);
+    if (argc < 1) {
+		printf("Assertion error: argument must contain at least 1.\n");
+		exit(1);
     }
-
-    Stackframe **sf = argv[0];
-    uint8_t *type = argv[1];
 
     switch (expression->type) {
-	case EXPRESSION_NUMBER:
-	    *type = TYPE_NUMBER;
-	    break;
-	case EXPRESSION_ID: {
-	    uint8_t *id = expression->id->value;
-	    Dataframe *found = findall_data(*sf, id);
-	    if (found != NULL) {
-		*type = found->type;
-	    } else {
-		printf("Semantic error: %s is undeclared.\n", id);
-	    }
-	    break;
-	}
-	default:
-	    printf("Unexpected error: a bug was raised while visiting binder expression.\n");
-	    exit(1);
+		case EXPRESSION_OPERATION:
+			expression
+				->operation
+				->node
+				->accept(expression->operation, self, argc, argv);
+			break;
+		default:
+			printf("Unexpected error: a bug was raised while visiting binder expression.\n");
+			exit(1);
     }
 
+}
+
+void bvisit_factor(Visitor self, Factor *factor, uint8_t argc, void **argv) {
+	Dataframe *found;
+	Stackframe **sf;
+	uint8_t *id;
+
+	if (argc < 1) {
+		printf("Assertion error: argument must contain at least 1.\n");
+		exit(1);
+    }
+
+	sf = argv[0];
+
+	switch (factor->type) {
+		case FACTOR_NUMBER:
+			/* Nothing to do */
+			break;
+		case FACTOR_OPERATION:
+			factor
+				->operation
+				->node
+				->accept(factor->operation, self, argc, argv);
+			break;
+		case FACTOR_ID: {
+			id = factor->id->value;
+			found = findall_data(*sf, id);
+			if (found != NULL) {
+				if (found->type != TYPE_NUMBER) {
+					printf("Semantic error: expected type number for '%s'.\n", id);
+				}
+			} else {
+				printf("Semantic error: %s is undeclared.\n", id);
+			}
+			break;
+		}
+		default:
+			printf("Unexpected error: a bug was raised while visiting binder expression.\n");
+			exit(1);
+	}
+}
+
+void bvisit_term(Visitor self, Term *term, uint8_t argc, void **argv) {
+	if (argc < 1) {
+		printf("Assertion error: argument must contain at least 1.\n");
+		exit(1);
+    }
+
+	switch (term->type) {
+		case TERM_FACTOR:
+			term
+				->factor
+				->node
+				->accept(term->factor, self, argc, argv);
+			break;
+		case TERM_THIS:
+			term
+				->this
+				->factor
+				->node
+				->accept(term->this->factor, self, argc, argv);
+			term
+				->this
+				->term
+				->node
+				->accept(term->this->term, self, argc, argv);
+			break;
+		default:
+			printf("Unexpected error: a bug was raised while visiting binder expression.\n");
+			exit(1);
+	}
+}
+
+void bvisit_operation(Visitor self, Operation *operation, uint8_t argc, void **argv) {
+	if (argc < 1) {
+		printf("Assertion error: argument must contain at least 1.\n");
+		exit(1);
+    }
+
+	switch (operation->type) {
+		case OPERATION_TERM:
+			operation
+				->term
+				->node
+				->accept(operation->term, self, argc, argv);
+			break;
+		case OPERATION_THIS:
+			operation
+				->this
+				->term
+				->node
+				->accept(operation->this->term, self, argc, argv);
+			operation
+				->this
+				->operation
+				->node
+				->accept(operation->this->operation, self, argc, argv);
+			break;
+		default:
+			printf("Unexpected error: a bug was raised while visiting binder expression.\n");
+			exit(1);
+	}
 }
 
 void bvisit_type(Visitor self, Type *type, uint8_t argc, void **argv) {

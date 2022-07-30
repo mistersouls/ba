@@ -16,7 +16,10 @@
         .visit_bfc              =       cvisit_bfc,                            \
         .visit_type             =       cvisit_type,                           \
         .visit_id               =       cvisit_id,                             \
-        .visit_number           =       cvisit_number                          \
+        .visit_number           =       cvisit_number,                         \
+        .visit_factor		    =	    cvisit_factor,					       \
+	    .visit_term			    =	    cvisit_term,					       \
+	    .visit_operation	    =	    cvisit_operation				       \
 }               
 
 
@@ -25,8 +28,13 @@
 typedef enum {
     NOP,
     ILOAD_CONST,
+    LOAD_M1,
     ILOAD_VAR,
     ISTORE,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
     IECHO,
     HALT = 255
 
@@ -42,12 +50,17 @@ typedef struct Bytecode {
 } Bytecode;
 
 static const char *OPNAMES[] = {
-    [NOP] = "NOP",
-    [ILOAD_CONST] = "ILOAD_CONST",
-    [ILOAD_VAR] = "ILOAD_VAR",
-    [ISTORE] = "ISTORE",
-    [IECHO] = "IECHO",
-    [HALT] = "HALT"
+    [NOP]                       = "NOP",
+    [ILOAD_CONST]               = "ILOAD_CONST",
+    [LOAD_M1]                   = "LOAD_M1",
+    [ILOAD_VAR]                 = "ILOAD_VAR",
+    [ISTORE]                    = "ISTORE",
+    [ADD]                       = "ADD",
+    [SUB]                       = "SUB",
+    [MUL]                       = "MUL",
+    [DIV]                       = "DIV",
+    [IECHO]                     = "IECHO",
+    [HALT]                      = "HALT"
 };
 
 
@@ -71,6 +84,9 @@ void cvisit_expression(Visitor self, Expression *expression, uint8_t argc, void 
 void cvisit_type(Visitor self, Type *type, uint8_t argc, void **argv);
 void cvisit_id(Visitor self, Id *id, uint8_t argc, void **argv);
 void cvisit_number(Visitor self, Number *number, uint8_t argc, void **argv);
+void cvisit_factor(Visitor self, Factor *factor, uint8_t argc, void **argv); 
+void cvisit_term(Visitor self, Term *term, uint8_t argc, void **argv); 
+void cvisit_operation(Visitor self, Operation *operation, uint8_t argc, void **argv);
 
 
 #endif // BA_COMPILER_H
