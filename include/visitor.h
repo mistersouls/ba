@@ -11,6 +11,9 @@ typedef struct Expression Expression;
 typedef struct Id Id;
 typedef struct Type Type;
 typedef struct Number Number;
+typedef struct Factor Factor;
+typedef struct Term Term;
+typedef struct Operation Operation;
 
 
 typedef struct Visitor Visitor;
@@ -26,6 +29,9 @@ struct Visitor {
     void (*visit_type)(Visitor self, Type *type, uint8_t argc, void **argv);
     void (*visit_id)(Visitor self, Id *id, uint8_t argc, void **argv);
     void (*visit_number)(Visitor self, Number *number, uint8_t argc, void **argv);
+    void (*visit_factor)(Visitor self, Factor *factor, uint8_t argc, void **argv);
+    void (*visit_term)(Visitor self, Term *term, uint8_t argc, void **argv);
+    void (*visit_operation)(Visitor self, Operation *operation, uint8_t argc, void **argv);
 };
 
 

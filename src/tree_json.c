@@ -93,25 +93,129 @@ void tjvisit_bfc(Visitor self, BuiltinFuncCall *bfc, uint8_t argc, void **argv) 
 
 void tjvisit_expression(Visitor self, Expression *expression, uint8_t argc, void **argv) {
     switch(expression->type) {
-	case EXPRESSION_NUMBER:
-	    printf("{\"type\":\"NUMBER\",\"number\":");
-	    expression
-		->number
-		->node
-		->accept(expression->number, self, argc, argv);
-	    printf("}");
-	    break;
-	case EXPRESSION_ID:
-	    printf("{\"type\":\"ID\",\"id\":");
-	    expression
-		->id
-		->node
-		->accept(expression->id, self, argc, argv);
-	    printf("}");
-	    break;
-	default:
-	    printf("{\"type\":\"unknown\"}");
+		case EXPRESSION_OPERATION:
+			printf("{\"type\":\"OPERATION\",\"operation\":");	
+			expression
+				->operation
+				->node
+				->accept(expression->operation, self, argc, argv);
+			printf("}");
+			break;
+		case EXPRESSION_NUMBER: /** @deprecated */
+			printf("{\"type\":\"NUMBER\",\"number\":");
+			expression
+			->number
+			->node
+			->accept(expression->number, self, argc, argv);
+			printf("}");
+			break;
+		case EXPRESSION_ID: /** @deprecated */
+			printf("{\"type\":\"ID\",\"id\":");
+			expression
+			->id
+			->node
+			->accept(expression->id, self, argc, argv);
+			printf("}");
+			break;
+		default:
+			printf("{\"type\":\"unknown\"}");
     }
+}
+
+void tjvisit_factor(Visitor self, Factor *factor, uint8_t argc, void **argv) {
+	char *minus = factor->minus ? "true" : "false";
+
+	switch (factor->type) {
+		case FACTOR_NUMBER:
+			printf("{\"type\":\"NUMBER\",\"number\":");
+			factor
+				->number
+				->node
+				->accept(factor->number, self, argc, argv);
+			printf(",\"minus\":%s}", minus);
+			break;
+		case FACTOR_ID:
+			printf("{\"type\":\"ID\",\"id\":");
+			factor
+				->id
+				->node
+				->accept(factor->id, self, argc, argv);
+			printf(",\"minus\":%s}", minus);
+			break;
+		case FACTOR_OPERATION:
+			printf("{\"type\":\"OPERATION\",\"operation\":");
+			factor
+				->operation
+				->node
+				->accept(factor->operation, self, argc, argv);
+			printf(",\"minus\":%s}", minus);
+			break;
+		default:
+			printf("{\"type\":\"unknown\"}");
+			break;
+	}
+}
+
+void tjvisit_term(Visitor self, Term *term, uint8_t argc, void **argv) {
+	switch (term->type) {
+		case TERM_FACTOR:
+			printf("{\"type\":\"FACTOR\",\"factor\":");
+			term
+				->factor
+				->node
+				->accept(term->factor, self, argc, argv);
+			printf("}");
+			break;
+		case TERM_THIS:
+			printf("{\"type\":\"THIS\",\"factor\":");
+			term
+				->this
+				->factor
+				->node
+				->accept(term->this->factor, self, argc, argv);
+			printf(",\"operator\":\"%s\",\"term\":", stringof_type(term->this->operator.type));
+			term
+				->this
+				->term
+				->node
+				->accept(term->this->term, self, argc, argv);
+			printf("}");
+			break;
+		default:
+			printf("{\"type\":\"unknown\"}");
+			break;
+	}
+}
+
+void tjvisit_operation(Visitor self, Operation *operation, uint8_t argc, void **argv) {
+	switch (operation->type) {
+		case OPERATION_TERM:
+			printf("{\"type\":\"TERM\",\"term\":");
+			operation
+				->term
+				->node
+				->accept(operation->term, self, argc, argv);
+			printf("}");
+			break;
+		case OPERATION_THIS:
+			printf("{\"type\":\"THIS\",\"term\":");
+			operation
+				->this
+				->term
+				->node
+				->accept(operation->this->term, self, argc, argv);
+			printf(",\"operator\":\"%s\",\"operation\":", stringof_type(operation->this->operator.type));
+			operation
+				->this
+				->operation
+				->node
+				->accept(operation->this->operation, self, argc, argv);
+			printf("}");
+			break;
+		default:
+			printf("{\"type\":\"unknown\"}");
+			break;
+	}	
 }
 
 void tjvisit_type(Visitor self, Type *type, uint8_t argc, void **argv) {

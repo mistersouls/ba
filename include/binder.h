@@ -12,7 +12,10 @@
         .visit_bfc              =       bvisit_bfc,                            \
         .visit_type             =       bvisit_type,                           \
         .visit_id               =       bvisit_id,                             \
-        .visit_number           =       bvisit_number                          \
+        .visit_number           =       bvisit_number,                         \
+        .visit_factor		    =	    bvisit_factor,					       \
+	    .visit_term			    =	    bvisit_term,					       \
+	    .visit_operation	    =	    bvisit_operation				       \
 }               
 
 
@@ -51,6 +54,9 @@ void bvisit_expression(Visitor self, Expression *expression, uint8_t argc, void 
 void bvisit_type(Visitor self, Type *type, uint8_t argc, void **argv);
 void bvisit_id(Visitor self, Id *id, uint8_t argc, void **argv);
 void bvisit_number(Visitor self, Number *number, uint8_t argc, void **argv);
+void bvisit_factor(Visitor self, Factor *factor, uint8_t argc, void **argv); 
+void bvisit_term(Visitor self, Term *term, uint8_t argc, void **argv); 
+void bvisit_operation(Visitor self, Operation *operation, uint8_t argc, void **argv);
 
 
 #endif // BA_BINDER_H

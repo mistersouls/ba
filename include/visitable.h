@@ -14,6 +14,10 @@ void accept_expression(Expression *expression, Visitor visitor, uint8_t argc, vo
 void accept_type(Type *type, Visitor visitor, uint8_t argc, void **argv);
 void accept_id(Id *id, Visitor visitor, uint8_t argc, void **argv);
 void accept_number(Number *number, Visitor visitor, uint8_t argc, void **argv);
+void accept_factor(Factor *factor, Visitor visitor, uint8_t argc, void **argv);
+void accept_term(Term *term, Visitor visitor, uint8_t argc, void **argv);
+void accept_operation(Operation *operation, Visitor visitor, uint8_t argc, void **argv);
+
 
 
 #endif // BA_VISITABLE_H
