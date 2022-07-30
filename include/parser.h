@@ -17,7 +17,7 @@ declaration: {id} ':' {type} ';'
 
 number: [0-9]+
 
-factor: ["-"] ({number} | {id}) | "(" {operation} ")"
+factor: ["-"] ({number} | {id} | "(" {operation} ")")
 
 term: {factor} ("*" | "/") {term} | {factor}
 
@@ -77,17 +77,11 @@ typedef struct Factor {
         FACTOR_OPERATION
     } type;
 
+    bool minus;
+
     union {
-        struct {
-            bool minus;
-            Number *this;
-        } *number;
-
-        struct {
-            bool minus;
-            Id *this;
-        } *id;
-
+        Number *number;
+        Id *id;
         Operation *operation;
     };
 } Factor;

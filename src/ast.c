@@ -164,6 +164,7 @@ void construct_number(Number **number, Tokens **tokens) {
 }
 
 void construct_factor(Factor **factor, Tokens **tokens) {
+    Token previous;
     Token token = peek_token(*tokens);
     *factor = new_factor();
 
@@ -179,24 +180,22 @@ void construct_factor(Factor **factor, Tokens **tokens) {
             break;
         case TOKEN_ID:
             (*factor)->type = FACTOR_ID;
-            construct_id(&(*factor)->id->this, tokens);
-            token = peek_token(*tokens);
-            if (token.type == TOKEN_MINUS) {
-                (*factor)->id->minus = true;
-                pop_token(tokens);
-            }
+            construct_id(&(*factor)->id, tokens);
             break;
         case TOKEN_NUMBER:
             (*factor)->type = FACTOR_NUMBER;
-            construct_number(&(*factor)->number->this, tokens);
-            token = peek_token(*tokens);
-            if (token.type == TOKEN_MINUS) {
-                (*factor)->number->minus = true;
-                pop_token(tokens);
-            }
+            construct_number(&(*factor)->number, tokens);
             break;
         default:
+            printf("Syntax error: expected number, id or ).\n");
             break;
+    }
+
+    token = peek_token(*tokens);
+    previous = peek_prev_token(*tokens);
+    if (!isfactor(previous) && token.type == TOKEN_MINUS) {
+        (*factor)->minus = true;
+        pop_token(tokens);
     }
 
 }
@@ -211,8 +210,13 @@ void construct_term(Term **term, Tokens **tokens) {
 
     if (token.type == TOKEN_MUL || token.type == TOKEN_DIV) {
         (*term)->type = TERM_THIS;
+        (*term)->this = malloc(sizeof((*term)->this));
+        if ((*term)->this == NULL) {
+            printf("Unable to allocate memory while constructing term.\n");
+            exit(0);
+        }
         (*term)->this->factor = factor;
-        (*term)->this->operator = token;
+        (*term)->this->operator = pop_token(tokens);
         construct_term(&(*term)->this->term, tokens);
     } else {
         (*term)->type = TERM_FACTOR;
@@ -231,8 +235,13 @@ void construct_operation(Operation **operation, Tokens **tokens) {
 
     if (token.type == TOKEN_PLUS || token.type == TOKEN_MINUS) {
         (*operation)->type = OPERATION_THIS;
+        (*operation)->this = malloc(sizeof((*operation)->this));
+        if ((*operation)->this == NULL) {
+            printf("Unable to allocate memory while constructing operation.\n");
+            exit(0);
+        }
         (*operation)->this->term = term;
-        (*operation)->this->operator = token;
+        (*operation)->this->operator = pop_token(tokens);
         construct_operation(&(*operation)->this->operation, tokens);
     } else {
         (*operation)->type = OPERATION_TERM;
@@ -255,15 +264,15 @@ void construct_expression(Expression **expression, Tokens **tokens) {
     *expression = new_expression();
     Token token = peek_token(*tokens);
 
-    if (token.type == TOKEN_NUMBER) { /** @deprecated */
+    if (isfactor(token)) {
+        (*expression)->type = EXPRESSION_OPERATION;
+        construct_operation(&(*expression)->operation, tokens);
+    } else if (token.type == TOKEN_NUMBER) { /** @deprecated */
 	    (*expression)->type = EXPRESSION_NUMBER;
 	    construct_number(&(*expression)->number, tokens);
     } else if (token.type == TOKEN_ID) { /** @deprecated */
         (*expression)->type = EXPRESSION_ID;
         construct_id(&(*expression)->id, tokens);
-    } else if (isfactor(token)) {
-        (*expression)->type = EXPRESSION_OPERATION;
-        construct_operation(&(*expression)->operation, tokens);
     } else {
 	    printf("Syntax error: an expression must be a number or an id.\n");
     }
